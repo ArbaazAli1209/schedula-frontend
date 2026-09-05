@@ -15,9 +15,10 @@ export function BookingConfirmation({ booking }: { booking: Booking }) {
       <div className="mx-auto grid size-12 place-items-center rounded-full bg-emerald-100 text-2xl text-[var(--brand-deep)]">
         ✓
       </div>
-      <h2 className="mt-4 text-xl font-semibold tracking-tight">Appointment confirmed</h2>
+      <h2 className="mt-4 text-xl font-semibold tracking-tight">Appointment requested</h2>
       <p className="mt-1 text-sm text-[var(--muted)]">
-        A confirmation has been sent to {booking.patientEmail}.
+        We&apos;ve sent your request to {booking.doctorName}. You&apos;ll get a notification as soon as it&apos;s confirmed, and
+        a copy has been sent to {booking.patientEmail}.
       </p>
 
       <dl className="mt-6 space-y-3 rounded-lg bg-stone-50 p-4 text-left text-sm">

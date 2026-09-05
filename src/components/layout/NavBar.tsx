@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 const links = [
   { href: "/", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
+  { href: "/appointments", label: "My Appointments" },
 ];
 
 export function NavBar() {
@@ -50,6 +52,7 @@ export function NavBar() {
 
         {status === "authenticated" && user ? (
           <div className="flex items-center gap-3">
+            <NotificationBell audience="user" recipient={user.email} />
             <span className="hidden text-sm text-[var(--muted)] sm:inline">{user.name}</span>
             <button
               type="button"

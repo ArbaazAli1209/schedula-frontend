@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useDoctorAuth } from "@/features/doctor-portal/hooks/useDoctorAuth";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 const links = [
   { href: "/doctor/dashboard", label: "Dashboard" },
+  { href: "/doctor/calendar", label: "Calendar" },
   { href: "/doctor/appointments", label: "Appointments" },
   { href: "/doctor/profile", label: "Profile" },
 ];
@@ -51,6 +53,7 @@ export function DoctorNavBar() {
 
         {status === "authenticated" && doctor ? (
           <div className="flex items-center gap-3">
+            <NotificationBell audience="doctor" recipient={doctor.fullName} />
             <span className="hidden text-sm text-[var(--muted)] sm:inline">{doctor.fullName}</span>
             <button
               type="button"

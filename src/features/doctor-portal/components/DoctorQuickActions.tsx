@@ -2,14 +2,19 @@ import Link from "next/link";
 
 const actions = [
   {
-    href: "/doctor/profile",
-    title: "Update profile & availability",
-    description: "Edit your details and manage bookable slots.",
+    href: "/doctor/calendar",
+    title: "Open calendar",
+    description: "Day, week and month views of your schedule.",
   },
   {
     href: "/doctor/appointments",
     title: "View all appointments",
     description: "See your full schedule with status filters.",
+  },
+  {
+    href: "/doctor/profile",
+    title: "Update profile & availability",
+    description: "Edit your details and manage bookable slots.",
   },
 ];
 

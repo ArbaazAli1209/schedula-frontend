@@ -16,10 +16,7 @@ function AppointmentsContent() {
           <p className="mt-2 max-w-xl text-[var(--muted)]">Your full schedule, filterable by status.</p>
         </header>
         <div className="py-8">
-          <DoctorAppointmentsPanel
-            clinicianName={doctor?.fullName}
-            filters={["all", "confirmed", "pending", "cancelled"]}
-          />
+          <DoctorAppointmentsPanel clinicianName={doctor?.fullName} />
         </div>
       </div>
     </main>
