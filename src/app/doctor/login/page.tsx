@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { LoginForm } from "@/features/auth/components/LoginForm";
+import { DoctorLoginForm } from "@/features/doctor-portal/components/DoctorLoginForm";
 
-export default function LoginPage() {
+export default function DoctorLoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm rounded-xl border border-[var(--line)] bg-white p-7">
@@ -11,17 +11,17 @@ export default function LoginPage() {
             S
           </div>
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">Sign in to Schedula</h1>
-            <p className="mt-1 text-sm text-[var(--muted)]">Manage doctors, slots, and appointments.</p>
+            <h1 className="text-lg font-semibold tracking-tight">Doctor Portal sign in</h1>
+            <p className="mt-1 text-sm text-[var(--muted)]">Manage your schedule and appointments.</p>
           </div>
         </div>
         <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-stone-100" />}>
-          <LoginForm />
+          <DoctorLoginForm />
         </Suspense>
         <p className="mt-6 text-center text-sm text-[var(--muted)]">
-          Are you a doctor?{" "}
+          New to Schedula?{" "}
           <Link href="/doctor/register" className="font-semibold text-[var(--brand)] hover:underline">
-            Create a Doctor Portal account
+            Create a doctor account
           </Link>
         </p>
       </div>

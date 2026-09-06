@@ -46,4 +46,18 @@ export const doctors: Doctor[] = [
     bio: "Specializes in heart health screening, hypertension, and post-cardiac-event follow-up.",
     slots: buildUpcomingSlots([8.5, 11, 13.5]),
   },
+  // Linked to the seeded Doctor Portal account in
+  // `@/lib/mock-data/doctorAccounts` (same id) so signing in as the demo
+  // doctor and browsing the patient directory show the same person.
+  {
+    id: "doc-acct-1",
+    name: "Dr. Leah Fischer",
+    specialty: "General medicine",
+    experienceYears: 12,
+    rating: 4.8,
+    initials: "LF",
+    location: "Room 09 · Springfield Clinic",
+    bio: "MBBS, MD (Internal Medicine) · 12 years of experience in general and preventive medicine.",
+    slots: buildUpcomingSlots([9.5, 11, 15]),
+  },
 ];

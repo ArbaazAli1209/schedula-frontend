@@ -2,34 +2,35 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useDoctorAuth } from "@/features/doctor-portal/hooks/useDoctorAuth";
 
 const links = [
-  { href: "/", label: "Dashboard" },
-  { href: "/doctors", label: "Doctors" },
+  { href: "/doctor/dashboard", label: "Dashboard" },
+  { href: "/doctor/appointments", label: "Appointments" },
+  { href: "/doctor/profile", label: "Profile" },
 ];
 
-export function NavBar() {
-  const { user, status, logout } = useAuth();
+export function DoctorNavBar() {
+  const { doctor, status, logout } = useDoctorAuth();
   const pathname = usePathname();
   const router = useRouter();
 
   function handleLogout() {
     logout();
-    router.push("/login");
+    router.push("/doctor/login");
   }
 
-  if (pathname === "/login" || pathname.startsWith("/doctor")) return null;
+  if (pathname === "/doctor/login" || pathname === "/doctor/register") return null;
 
   return (
     <nav className="border-b border-[var(--line)] bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/doctor/dashboard" className="flex items-center gap-2">
             <span className="grid size-8 place-items-center rounded-lg bg-[var(--brand)] font-serif text-sm text-white">
               S
             </span>
-            <span className="font-semibold tracking-tight">Schedula</span>
+            <span className="font-semibold tracking-tight">Schedula for doctors</span>
           </Link>
           <div className="hidden gap-1 sm:flex">
             {links.map((link) => (
@@ -48,9 +49,9 @@ export function NavBar() {
           </div>
         </div>
 
-        {status === "authenticated" && user ? (
+        {status === "authenticated" && doctor ? (
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-[var(--muted)] sm:inline">{user.name}</span>
+            <span className="hidden text-sm text-[var(--muted)] sm:inline">{doctor.fullName}</span>
             <button
               type="button"
               onClick={handleLogout}
@@ -61,7 +62,7 @@ export function NavBar() {
           </div>
         ) : (
           <Link
-            href="/login"
+            href="/doctor/login"
             className="rounded-lg bg-[var(--brand)] px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-[var(--brand-deep)]"
           >
             Sign in
