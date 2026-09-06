@@ -1,73 +1,73 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { AppointmentStatus } from "@/types/appointment";
+import type { Appointment } from "@/types/appointment";
 import { useDoctorAppointments } from "@/features/doctor-portal/hooks/useDoctorAppointments";
-
-type Filter = "all" | AppointmentStatus;
-
-const STATUS_STYLES: Record<AppointmentStatus, string> = {
-  confirmed: "bg-emerald-50 text-emerald-800 ring-emerald-200",
-  pending: "bg-amber-50 text-amber-800 ring-amber-200",
-  cancelled: "bg-stone-100 text-stone-600 ring-stone-200",
-};
+import { computeDisplayStatus } from "@/lib/utils/appointments";
+import { AppointmentFilters, type StatusFilter } from "@/components/appointments/AppointmentFilters";
+import { AppointmentDetailsPanel } from "@/components/appointments/AppointmentDetailsPanel";
+import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { PatientDetailsDialog } from "@/components/appointments/PatientDetailsDialog";
 
 const timeFormatter = new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit" });
+const ALL_TABS: StatusFilter[] = ["all", "pending", "confirmed", "upcoming", "completed", "cancelled", "missed"];
 
 export function DoctorAppointmentsPanel({
   clinicianName,
-  filters = ["all", "confirmed", "pending"],
+  tabs = ALL_TABS,
 }: {
   clinicianName: string | undefined;
-  filters?: Filter[];
+  tabs?: StatusFilter[];
 }) {
-  const { appointments, status, refetch } = useDoctorAppointments(clinicianName);
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
+  const { appointments, status, refetch } = useDoctorAppointments(clinicianName, { status: filter, search, date });
   const [selectedId, setSelectedId] = useState<string>();
+  const [patientDialogId, setPatientDialogId] = useState<string>();
 
-  // Default to the first appointment once the list loads, without
-  // clobbering a selection the doctor already made.
   useEffect(() => {
     if (!selectedId && appointments.length > 0) setSelectedId(appointments[0].id);
   }, [appointments, selectedId]);
 
-  const visible = useMemo(
-    () => (filter === "all" ? appointments : appointments.filter((item) => item.status === filter)),
-    [appointments, filter],
-  );
-
   const selected = appointments.find((item) => item.id === selectedId);
+  const patientDialogAppointment = appointments.find((item) => item.id === patientDialogId);
 
-  const counts = appointments.reduce<Record<Filter, number>>(
-    (total, item) => ({ ...total, all: total.all + 1, [item.status]: total[item.status] + 1 }),
-    { all: 0, confirmed: 0, pending: 0, cancelled: 0 },
-  );
+  // Counts always reflect the unfiltered clinician list so tab badges don't
+  // shift as the doctor narrows the view with search/date.
+  const { appointments: allForCounts } = useDoctorAppointments(clinicianName);
+  const counts = useMemo(() => {
+    const base: Partial<Record<StatusFilter, number>> = { all: allForCounts.length };
+    for (const item of allForCounts) {
+      const key = computeDisplayStatus(item) as StatusFilter;
+      base[key] = (base[key] ?? 0) + 1;
+    }
+    return base;
+  }, [allForCounts]);
+
+  function handleUpdated(updated: Appointment) {
+    setSelectedId(updated.id);
+    refetch();
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <section
-        className="overflow-hidden rounded-xl border border-[var(--line)] bg-white"
-        aria-labelledby="doctor-schedule-title"
-      >
-        <div className="flex flex-col gap-4 border-b border-[var(--line)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <section className="overflow-hidden rounded-xl border border-[var(--line)] bg-white" aria-labelledby="doctor-schedule-title">
+        <div className="flex items-center justify-between px-5 pt-4">
           <h2 id="doctor-schedule-title" className="font-semibold">
             Your appointments
           </h2>
-          <div className="flex gap-1 rounded-lg bg-stone-100 p-1" role="group" aria-label="Filter appointments">
-            {filters.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setFilter(item)}
-                className={`rounded-md px-3 py-1.5 text-sm capitalize ${
-                  filter === item ? "bg-white font-medium shadow-sm" : "text-[var(--muted)] hover:text-[var(--ink)]"
-                }`}
-              >
-                {item} <span className="ml-1 text-xs">{counts[item]}</span>
-              </button>
-            ))}
-          </div>
         </div>
+        <AppointmentFilters
+          tabs={tabs}
+          active={filter}
+          onChange={setFilter}
+          counts={counts}
+          search={search}
+          onSearchChange={setSearch}
+          date={date}
+          onDateChange={setDate}
+        />
 
         {status === "loading" && (
           <div className="space-y-4 p-5" aria-busy="true" aria-label="Loading appointments">
@@ -88,47 +88,68 @@ export function DoctorAppointmentsPanel({
 
         {status === "ready" && (
           <ul className="divide-y divide-[var(--line)]" role="list">
-            {visible.map((item) => (
+            {appointments.map((item) => (
               <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(item.id)}
-                  aria-pressed={selectedId === item.id}
-                  className={`grid w-full grid-cols-[4.5rem_minmax(0,1fr)] gap-3 px-5 py-4 text-left hover:bg-emerald-50/40 ${
+                <div
+                  className={`grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3 px-5 py-4 hover:bg-emerald-50/40 ${
                     selectedId === item.id ? "bg-emerald-50/60" : ""
                   }`}
                 >
-                  <time className="pt-1 text-sm font-medium text-[var(--muted)]">
-                    {timeFormatter.format(new Date(item.startsAt))}
-                  </time>
-                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
+                  <button type="button" onClick={() => setSelectedId(item.id)} aria-pressed={selectedId === item.id} className="text-left">
+                    <time className="pt-1 text-sm font-medium text-[var(--muted)]">{timeFormatter.format(new Date(item.startsAt))}</time>
+                  </button>
+                  <button type="button" onClick={() => setSelectedId(item.id)} className="flex min-w-0 flex-col gap-2 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
                       <p className="font-semibold">
-                        {item.patient.name}{" "}
-                        <span className="font-normal text-[var(--muted)]">· {item.durationMinutes} min</span>
+                        {item.patient.name} <span className="font-normal text-[var(--muted)]">· {item.durationMinutes} min</span>
                       </p>
-                      <p className="mt-0.5 truncate text-sm text-[var(--muted)]">{item.reason}</p>
+                      <p className="mt-0.5 truncate text-sm text-[var(--muted)]">
+                        {item.reason} · {item.type === "video" ? "Video" : "In-person"}
+                      </p>
                     </div>
-                    <span
-                      className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[item.status]}`}
-                    >
-                      {item.status}
+                    <span className="flex items-center gap-2">
+                      <StatusBadge status={computeDisplayStatus(item)} />
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View patient details for ${item.patient.name}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setPatientDialogId(item.id);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.stopPropagation();
+                            setPatientDialogId(item.id);
+                          }
+                        }}
+                        className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg text-base hover:bg-stone-100"
+                        title="Patient details"
+                      >
+                        👤
+                      </span>
                     </span>
-                  </div>
-                </button>
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
         )}
 
-        {status === "ready" && visible.length === 0 && (
+        {status === "ready" && appointments.length === 0 && (
           <div className="p-10 text-center">
-            <p className="font-medium">
-              {appointments.length === 0 ? "No appointments yet." : "No appointments match this filter."}
-            </p>
-            {appointments.length > 0 && (
-              <button type="button" onClick={() => setFilter("all")} className="mt-2 text-sm font-semibold text-[var(--brand)]">
-                Show all appointments
+            <p className="font-medium">No appointments match this view.</p>
+            {(filter !== "all" || search || date) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter("all");
+                  setSearch("");
+                  setDate("");
+                }}
+                className="mt-2 text-sm font-semibold text-[var(--brand)]"
+              >
+                Clear filters
               </button>
             )}
           </div>
@@ -139,42 +160,16 @@ export function DoctorAppointmentsPanel({
         <p className="text-sm font-medium text-[var(--muted)]">Appointment details</p>
         {selected ? (
           <div className="mt-5">
-            <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-full bg-emerald-100 text-sm font-semibold text-[var(--brand-deep)]">
-                {selected.patient.initials}
-              </span>
-              <div>
-                <h3 className="font-semibold">{selected.patient.name}</h3>
-                <p className="text-sm text-[var(--muted)]">{selected.patient.age} years old</p>
-              </div>
-            </div>
-            <dl className="mt-6 space-y-4 text-sm">
-              <div>
-                <dt className="text-[var(--muted)]">Visit</dt>
-                <dd className="mt-1 font-medium">{selected.reason}</dd>
-              </div>
-              <div>
-                <dt className="text-[var(--muted)]">Time &amp; room</dt>
-                <dd className="mt-1 font-medium">
-                  {timeFormatter.format(new Date(selected.startsAt))} · {selected.room}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[var(--muted)]">Status</dt>
-                <dd className="mt-1">
-                  <span
-                    className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[selected.status]}`}
-                  >
-                    {selected.status}
-                  </span>
-                </dd>
-              </div>
-            </dl>
+            <AppointmentDetailsPanel appointment={selected} onUpdated={handleUpdated} />
           </div>
         ) : (
           <p className="mt-5 text-sm text-[var(--muted)]">Select an appointment to see visit details.</p>
         )}
       </aside>
+
+      {patientDialogAppointment && (
+        <PatientDetailsDialog appointment={patientDialogAppointment} onClose={() => setPatientDialogId(undefined)} />
+      )}
     </div>
   );
 }

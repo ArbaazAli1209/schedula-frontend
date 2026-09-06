@@ -3,7 +3,7 @@
 import { RequireDoctorAuth } from "@/features/doctor-portal/components/RequireDoctorAuth";
 import { useDoctorAuth } from "@/features/doctor-portal/hooks/useDoctorAuth";
 import { DoctorQuickActions } from "@/features/doctor-portal/components/DoctorQuickActions";
-import { DoctorAppointmentsPanel } from "@/features/doctor-portal/components/DoctorAppointmentsPanel";
+import { DoctorDashboardAppointments } from "@/features/doctor-portal/components/DoctorDashboardAppointments";
 
 function DashboardContent() {
   const { doctor } = useDoctorAuth();
@@ -29,7 +29,7 @@ function DashboardContent() {
         </section>
 
         <section className="pb-10">
-          <DoctorAppointmentsPanel clinicianName={doctor?.fullName} />
+          <DoctorDashboardAppointments clinicianName={doctor?.fullName} />
         </section>
       </div>
     </main>
