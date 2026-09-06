@@ -22,7 +22,7 @@ export function NavBar() {
     router.push("/login");
   }
 
-  if (pathname === "/login" || pathname.startsWith("/doctor")) return null;
+  if (pathname === "/login" || pathname === "/doctor" || pathname.startsWith("/doctor/")) return null;
 
   return (
     <nav className="border-b border-[var(--line)] bg-white">
