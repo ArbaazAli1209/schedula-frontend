@@ -12,6 +12,11 @@ const actions = [
     description: "See your full schedule with status filters.",
   },
   {
+    href: "/doctor/prescriptions",
+    title: "Manage prescriptions",
+    description: "View, create, and edit prescriptions for completed visits.",
+  },
+  {
     href: "/doctor/profile",
     title: "Update profile & availability",
     description: "Edit your details and manage bookable slots.",

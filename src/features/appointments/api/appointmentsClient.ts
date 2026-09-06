@@ -76,7 +76,7 @@ export async function getPrescription(appointmentId: string): Promise<Prescripti
 
 export async function issuePrescription(
   appointmentId: string,
-  input: { notes: string; medications: PrescriptionMedication[] },
+  input: { diagnosis: string; notes: string; medications: PrescriptionMedication[] },
 ): Promise<Prescription> {
   const response = await fetch(`/api/appointments/${appointmentId}/prescription`, {
     method: "POST",

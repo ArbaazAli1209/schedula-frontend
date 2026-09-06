@@ -12,10 +12,11 @@ type Props = {
   onSaved: (prescription: Prescription) => void;
 };
 
-const EMPTY_MED: PrescriptionMedication = { name: "", dosage: "", instructions: "" };
+const EMPTY_MED: PrescriptionMedication = { name: "", dosage: "", duration: "", instructions: "" };
 
-/** Doctor-side form for issuing a prescription on a completed visit. */
+/** Doctor-side form for issuing/editing a prescription on a completed visit. */
 export function PrescriptionForm({ appointment, onClose, onSaved }: Props) {
+  const [diagnosis, setDiagnosis] = useState(appointment.prescription?.diagnosis ?? "");
   const [medications, setMedications] = useState<PrescriptionMedication[]>(
     appointment.prescription?.medications.length ? appointment.prescription.medications : [{ ...EMPTY_MED }],
   );
@@ -28,11 +29,19 @@ export function PrescriptionForm({ appointment, onClose, onSaved }: Props) {
   }
 
   async function handleSubmit() {
+    if (!diagnosis.trim()) {
+      setError("Diagnosis is required.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
       const cleaned = medications.filter((med) => med.name.trim());
-      const prescription = await issuePrescription(appointment.id, { notes: notes.trim(), medications: cleaned });
+      const prescription = await issuePrescription(appointment.id, {
+        diagnosis: diagnosis.trim(),
+        notes: notes.trim(),
+        medications: cleaned,
+      });
       onSaved(prescription);
       onClose();
     } catch (err) {
@@ -43,8 +52,21 @@ export function PrescriptionForm({ appointment, onClose, onSaved }: Props) {
   }
 
   return (
-    <Modal title="Add prescription" onClose={onClose}>
+    <Modal title={appointment.prescription ? "Edit prescription" : "Add prescription"} onClose={onClose}>
       <p className="text-sm text-[var(--muted)]">For {appointment.patient.name}&apos;s visit.</p>
+
+      <div className="mt-4">
+        <label htmlFor="rx-diagnosis" className="text-sm font-medium text-[var(--ink)]">
+          Diagnosis
+        </label>
+        <input
+          id="rx-diagnosis"
+          value={diagnosis}
+          onChange={(event) => setDiagnosis(event.target.value)}
+          placeholder="e.g. Acute bronchitis"
+          className="mt-1.5 w-full rounded-lg border border-[var(--line)] px-3.5 py-2.5 text-sm outline-none focus:border-[var(--brand)]"
+        />
+      </div>
 
       <div className="mt-4 space-y-3">
         {medications.map((med, index) => (
@@ -62,10 +84,16 @@ export function PrescriptionForm({ appointment, onClose, onSaved }: Props) {
               className="rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
             />
             <input
+              value={med.duration}
+              onChange={(event) => updateMed(index, "duration", event.target.value)}
+              placeholder="Duration"
+              className="rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
+            />
+            <input
               value={med.instructions}
               onChange={(event) => updateMed(index, "instructions", event.target.value)}
               placeholder="Instructions"
-              className="rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
+              className="col-span-2 rounded-lg border border-[var(--line)] px-3 py-2 text-sm outline-none focus:border-[var(--brand)]"
             />
           </div>
         ))}

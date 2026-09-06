@@ -1,4 +1,4 @@
-import { accounts } from "@/lib/mock-data/users";
+import { accounts, toPublicUser } from "@/lib/mock-data/users";
 
 type LoginBody = { email?: string; password?: string };
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const user = { id: account.id, name: account.name, email: account.email };
+  const user = toPublicUser(account);
   // Demo-only token: a real backend would issue a signed session/JWT.
   const token = `mock-token.${account.id}.${Date.now()}`;
 
