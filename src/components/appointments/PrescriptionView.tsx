@@ -32,6 +32,13 @@ export function PrescriptionView({ appointment, prescription, onClose }: Props) 
         {appointment.clinician} · {dateFormatter.format(new Date(prescription.issuedAt))}
       </p>
 
+      {prescription.diagnosis && (
+        <div className="mt-4">
+          <p className="text-sm font-medium">Diagnosis</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{prescription.diagnosis}</p>
+        </div>
+      )}
+
       <div className="mt-4">
         <p className="text-sm font-medium">Medications</p>
         {prescription.medications.length === 0 ? (
@@ -41,7 +48,7 @@ export function PrescriptionView({ appointment, prescription, onClose }: Props) 
             {prescription.medications.map((med, index) => (
               <li key={index} className="rounded-lg border border-[var(--line)] p-3 text-sm">
                 <p className="font-semibold">
-                  {med.name} <span className="font-normal text-[var(--muted)]">· {med.dosage}</span>
+                  {med.name} <span className="font-normal text-[var(--muted)]">· {med.dosage}{med.duration ? ` · ${med.duration}` : ""}</span>
                 </p>
                 <p className="mt-0.5 text-[var(--muted)]">{med.instructions}</p>
               </li>

@@ -150,14 +150,33 @@ export function AppointmentDetailsPanel({
           </>
         )}
 
-        {appointment.status === "completed" && (
+        {appointment.status === "completed" && !appointment.prescription && (
           <button
             type="button"
-            onClick={() => setDialog({ kind: appointment.prescription ? "view-prescription" : "prescription" })}
+            onClick={() => setDialog({ kind: "prescription" })}
             className="w-full rounded-lg border border-[var(--line)] px-4 py-2.5 text-sm font-semibold hover:border-[var(--brand)] hover:text-[var(--brand)]"
           >
-            {appointment.prescription ? "View prescription" : "Add prescription"}
+            Add prescription
           </button>
+        )}
+
+        {appointment.status === "completed" && appointment.prescription && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setDialog({ kind: "view-prescription" })}
+              className="flex-1 rounded-lg border border-[var(--line)] px-4 py-2.5 text-sm font-semibold hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              View prescription
+            </button>
+            <button
+              type="button"
+              onClick={() => setDialog({ kind: "prescription" })}
+              className="flex-1 rounded-lg border border-[var(--line)] px-4 py-2.5 text-sm font-semibold hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              Edit
+            </button>
+          </div>
         )}
 
         {(appointment.status === "cancelled" || appointment.status === "missed") && (

@@ -19,7 +19,7 @@ export function DoctorAppointmentsPanel({
   clinicianName: string | undefined;
   tabs?: StatusFilter[];
 }) {
-  const [filter, setFilter] = useState<StatusFilter>("all");
+  const [filter, setFilter] = useState<StatusFilter>(tabs[0] ?? "all");
   const [search, setSearch] = useState("");
   const [date, setDate] = useState("");
   const { appointments, status, refetch } = useDoctorAppointments(clinicianName, { status: filter, search, date });

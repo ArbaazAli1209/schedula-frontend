@@ -9,6 +9,7 @@ const links = [
   { href: "/", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
   { href: "/appointments", label: "My Appointments" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export function NavBar() {

@@ -12,7 +12,7 @@ export async function GET(_request: Request, context: RouteContext) {
   return Response.json({ data: appointment.prescription });
 }
 
-type PrescriptionBody = { notes?: string; medications?: PrescriptionMedication[] };
+type PrescriptionBody = { diagnosis?: string; notes?: string; medications?: PrescriptionMedication[] };
 
 /** Doctor-side integration point for issuing a prescription on a completed visit. */
 export async function POST(request: Request, context: RouteContext) {
@@ -30,17 +30,23 @@ export async function POST(request: Request, context: RouteContext) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
+  if (!body.diagnosis?.trim()) {
+    return Response.json({ error: "Diagnosis is required." }, { status: 400 });
+  }
+
+  const isEdit = Boolean(appointment.prescription);
   const prescription: Prescription = {
-    id: `rx-${Date.now()}`,
+    id: appointment.prescription?.id ?? `rx-${Date.now()}`,
     appointmentId: appointment.id,
-    issuedAt: new Date().toISOString(),
+    issuedAt: appointment.prescription?.issuedAt ?? new Date().toISOString(),
+    diagnosis: body.diagnosis.trim(),
     notes: body.notes?.trim() ?? "",
     medications: Array.isArray(body.medications) ? body.medications : [],
   };
   appointment.prescription = prescription;
-  appointment.updatedAt = prescription.issuedAt;
+  appointment.updatedAt = new Date().toISOString();
 
-  if (appointment.patient.email) {
+  if (!isEdit && appointment.patient.email) {
     createNotification({
       audience: "user",
       recipient: appointment.patient.email,

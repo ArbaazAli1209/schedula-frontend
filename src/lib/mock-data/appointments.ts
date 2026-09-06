@@ -135,10 +135,11 @@ export const appointments: Appointment[] = [
       id: "rx-1049",
       appointmentId: "apt-1049",
       issuedAt: "2026-08-15T10:05:00.000Z",
+      diagnosis: "Acute bronchitis",
       notes: "Rest, fluids, and follow up in 2 weeks if symptoms persist.",
       medications: [
-        { name: "Amoxicillin", dosage: "500 mg", instructions: "Twice daily for 7 days, with food." },
-        { name: "Guaifenesin syrup", dosage: "10 mL", instructions: "Every 6 hours as needed for cough." },
+        { name: "Amoxicillin", dosage: "500 mg", duration: "7 days", instructions: "Twice daily, with food." },
+        { name: "Guaifenesin syrup", dosage: "10 mL", duration: "5 days", instructions: "Every 6 hours as needed for cough." },
       ],
     },
   },

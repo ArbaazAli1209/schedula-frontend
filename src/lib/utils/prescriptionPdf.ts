@@ -20,8 +20,12 @@ export function buildPrescriptionPdf(appointment: Appointment, prescription: Pre
     `Clinician: ${appointment.clinician}`,
     `Issued: ${issued}`,
     "",
+    `Diagnosis: ${prescription.diagnosis || "—"}`,
+    "",
     "Medications:",
-    ...prescription.medications.map((med) => `- ${med.name} ${med.dosage} — ${med.instructions}`),
+    ...prescription.medications.map(
+      (med) => `- ${med.name} ${med.dosage}${med.duration ? ` for ${med.duration}` : ""} — ${med.instructions}`,
+    ),
     "",
     "Notes:",
     prescription.notes || "—",

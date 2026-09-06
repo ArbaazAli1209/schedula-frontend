@@ -24,6 +24,12 @@ export default function DoctorLoginPage() {
             Create a doctor account
           </Link>
         </p>
+        <p className="mt-2 text-center text-sm text-[var(--muted)]">
+          Looking to book an appointment?{" "}
+          <Link href="/login" className="font-semibold text-[var(--brand)] hover:underline">
+            Log in as a user
+          </Link>
+        </p>
       </div>
     </main>
   );

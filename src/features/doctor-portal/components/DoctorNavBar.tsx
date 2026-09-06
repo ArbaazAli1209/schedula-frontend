@@ -9,6 +9,7 @@ const links = [
   { href: "/doctor/dashboard", label: "Dashboard" },
   { href: "/doctor/calendar", label: "Calendar" },
   { href: "/doctor/appointments", label: "Appointments" },
+  { href: "/doctor/prescriptions", label: "Prescriptions" },
   { href: "/doctor/profile", label: "Profile" },
 ];
 

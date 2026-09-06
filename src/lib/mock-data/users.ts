@@ -1,6 +1,6 @@
-import type { User } from "@/types/user";
+import type { User, UserProfile } from "@/types/user";
 
-type MockAccount = User & { password: string };
+type MockAccount = UserProfile & { password: string };
 
 /**
  * Demo-only accounts for the mock authentication endpoint.
@@ -13,11 +13,39 @@ export const accounts: MockAccount[] = [
     name: "Maya Patel",
     email: "maya@schedula.dev",
     password: "schedula123",
+    phone: "+1 555-0142",
+    dateOfBirth: "1992-04-18",
+    gender: "female",
+    address: "18 Birchwood Ave, Portland, OR",
+    heightCm: 165,
+    weightKg: 60,
+    bloodGroup: "O+",
+    medicalConditions: ["Asthma"],
+    allergies: ["Penicillin"],
+    currentMedications: ["Albuterol inhaler"],
+    insurance: { provider: "Cascade Health", policyNumber: "CH-88213" },
+    emergencyContact: { name: "Ravi Patel", relationship: "Spouse", phone: "+1 555-0198" },
   },
   {
     id: "usr-2",
     name: "Ethan Brooks",
     email: "ethan@schedula.dev",
     password: "schedula123",
+    phone: "+1 555-0177",
+    dateOfBirth: "1985-11-02",
+    gender: "male",
+    address: "402 Fremont St, Portland, OR",
+    heightCm: 178,
+    weightKg: 82,
+    bloodGroup: "A+",
+    medicalConditions: [],
+    allergies: [],
+    currentMedications: [],
+    insurance: { provider: "", policyNumber: "" },
+    emergencyContact: { name: "", relationship: "", phone: "" },
   },
 ];
+
+export function toPublicUser(account: MockAccount): User {
+  return { id: account.id, name: account.name, email: account.email };
+}
